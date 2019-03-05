@@ -99,7 +99,7 @@ class DataHandler:
   for var in citations:
     if var in labels.keys():
       g.rv(var, 2)
-      g.factor([var], potential = np.array([1, 0]))
+      g.factor([var], potential = np.array([1.0, 0.0]))
     else:
       g.rv(var,10)
       g.factor([var], potential = \
@@ -113,7 +113,7 @@ class DataHandler:
   for var in citations:
 
     #Just for timing purposes
-    if count % 1000 == 0:
+    if count % 4500 == 0:
       time_passed = (time.process_time()-start)/60
       print('{} factors added'.format(count), 'in {:.3} minutes'.format(time_passed))
       remaining_time = time_passed/count*(num_citations-count)
@@ -127,8 +127,8 @@ class DataHandler:
           #only add a factor if it is a valid paper
           if citedpapers in labels:
             #var is labeled, citedpapers is labeled
-            g.factor([var, citedpapers], potential = np.array([[1, 0],
-                                                               [1, 0]]))
+            g.factor([var, citedpapers], potential = np.array([[1.0, 0.0],
+                                                               [1.0, 0.0]]))
           else:
             #var is labeled, citedpapers is not labeled
             g.factor([var, citedpapers], potential = \
@@ -141,16 +141,16 @@ class DataHandler:
           if citedpapers in labels:
             #var is not labeled, citedpapers is labeled
             g.factor([var, citedpapers], potential = \
-                     np.array([[1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0],
-                               [1, 0]]))
+                     np.array([[1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0],
+                               [1.0, 0.0]]))
           else:
             #var is not labeled, citedpapers is not labeled
             g.factor([var, citedpapers], potential = np.array([
