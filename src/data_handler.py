@@ -4,9 +4,15 @@ data_handler contains set of parsers for the dataset
 import numpy as np
 import factorgraph as fg
 import time
+import pickle
 
 DATA = "../data/"
-
+#the dictionary that maps the title to its ID
+titleToID = {}
+labels = {}
+citations = {}
+#Handles test
+g = fg.Graph()
 
 def Print3Entries(d):
   num = 0
@@ -17,11 +23,11 @@ def Print3Entries(d):
     num = num + 1
 
 
-class DataHandler:
+def loadTitles():
   """
   Code below reads the file "papers", and stores (title, ID) pairs in titleToID
   """
-  titleToID = {} #the dictionary that maps the title to its ID
+  #the dictionary that maps the title to its ID
   fpapers = open(DATA + "papers", "r")
   for x in fpapers:
 
@@ -33,11 +39,12 @@ class DataHandler:
   Print3Entries(titleToID)
   print()
   print("There are", len(titleToID.values()), "papers with at least one title")
-  
+
+def loadClasses():
   """
   Code below reads the file "classifications", and stores (ID, label) pairs in labels
   """
-  labels = {} #the dictionary that maps the ID to its label
+  #the dictionary that maps the ID to its label
   fclassifications = open(DATA + "classifications", "r")
   i = 0
   for x in fclassifications:
@@ -57,11 +64,12 @@ class DataHandler:
   print()
   print("There are", len(labels), "labeled papers")
   print("There are", i, "papers with a label but doesn't have an ID (useless ones)")
-  
+
+def loadCitations():
   """
   Code below reads the file "citations", and stores (ID, cited ID) pairs in citations
   """
-  citations = {} #the dictionary that maps the ID to a list of ID's it cites
+  #the dictionary that maps the ID to a list of ID's it cites
   fcitations = open(DATA + "citations", "r")
   counter = 0
   for x in fcitations:
@@ -79,6 +87,7 @@ class DataHandler:
   print("There are", len(citations), "papers whose citations are provided")
   print("Among them", counter, "papers have labels")
 
+def removeKeys():
   """
   Code below removes the papers in the dictionary "labels" whose citations are not provided
   """
@@ -90,15 +99,14 @@ class DataHandler:
     del labels[x]
   print(len(labels))
 
-#Hanles test
-  g = fg.Graph()
 
+def graphTest():
   #Add all rvs to graph
   print("Adding unary factors to graph...")
   for var in citations:
     if var in labels.keys():
-      g.rv(var, 2)
-      g.factor([var], potential = np.array([1.0, 0.0]))
+      g.rv(var, 1)
+      g.factor([var], potential = np.array([1.0]))
     else:
       g.rv(var,10)
       g.factor([var], potential = \
@@ -108,7 +116,7 @@ class DataHandler:
   num_citations = len(citations)
   count = 1
   start = time.process_time()
-  
+
   for var in citations:
 
     #Just for timing purposes
@@ -126,13 +134,11 @@ class DataHandler:
           #only add a factor if it is a valid paper
           if citedpapers in labels:
             #var is labeled, citedpapers is labeled
-            g.factor([var, citedpapers], potential = np.array([[1.0, 0.0],
-                                                               [1.0, 0.0]]))
+            g.factor([var, citedpapers], potential = np.array([[1.0]]))
           else:
             #var is labeled, citedpapers is not labeled
             g.factor([var, citedpapers], potential = \
-                  np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]]))
+                  np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]]))
     else:  
       for citedpapers in citations[var]:
         if citedpapers in citations.keys() and citedpapers != var: 
@@ -140,16 +146,16 @@ class DataHandler:
           if citedpapers in labels:
             #var is not labeled, citedpapers is labeled
             g.factor([var, citedpapers], potential = \
-                     np.array([[1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0],
-                               [1.0, 0.0]]))
+                     np.array([[1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0],
+                               [1.0]]))
           else:
             #var is not labeled, citedpapers is not labeled
             g.factor([var, citedpapers], potential = np.array([
@@ -169,8 +175,21 @@ class DataHandler:
   iters, converged = g.lbp(normalize=True, progress=True)
   print("BP Completed")
   print("LBP ran for", iters, "iterations. Converged =", converged)
+
+  #print("Saving to pickle...")
+  #pickle.dump(g, open(DATA + "saved_model.p", "wb"))
   
+
+def main():
+  loadTitles()
+  loadClasses()
+  loadCitations()
+  removeKeys()
+  graphTest()
   
+if __name__== "__main__":
+  main()
+
   
   
   
