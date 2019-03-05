@@ -2,7 +2,10 @@
 data_handler contains set of parsers for the dataset
 """
 import numpy as np
-#import factorgraph as fg
+import importlib
+import factorgraph as fg
+importlib.reload(fg)
+
 
 
 def Print3Entries(d):
@@ -73,7 +76,8 @@ class DataHandler:
       citations[c[0]] = set()
       if c[0] in labels.keys():
         counter = counter + 1
-    citations[c[0]].add(c[1])
+    if c[0] != c[1]:
+      citations[c[0]].add(c[1])
     
   print()
   print("citations looks like this:")
@@ -93,32 +97,38 @@ class DataHandler:
     del labels[x]
   print(len(labels))
   
-  """
-  g = fg.Graph()
 
+  g = fg.Graph()
+  trash = 0
   for var in citations:
     if var in labels.keys():
       g.rv(var, 1)
       g.factor([var], potential = np.array([1]))
+    else:
+      g.rv(var, 10)
+      g.factor([var], potential = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
+      
+ 
+  for var in citations:
+    if var in labels.keys():
       for citedpapers in citations[var]:
         if citedpapers in citations.keys(): #only add a factor if it is a valid paper
           if citedpapers in labels:
             #var is labeled, citedpapers is labeled
-            g.factor([var, citedpapers], potential = np.array([1]))
+            g.factor([var, citedpapers], potential = np.array([[1.0]]))
           else:
             #var is labeled, citedpapers is not labeled
-            g.factor([var, citedpapers], potential = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
+            g.factor([var, citedpapers], potential = np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]]))
     else:
-      g.rv(var, 10)
-      g.factor([var], potential = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
       for citedpapers in citations[var]:
         if citedpapers in citations.keys(): #only add a factor if it is a valid paper
           if citedpapers in labels:
             #var is not labeled, citedpapers is labeled
-            g.factor([var, citedpapers], potential = np.array([1], [1], [1], [1], [1], [1], [1], [1], [1], [1]))
+            g.factor([var, citedpapers], potential = np.array([[1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0]]))
           else:
             #var is not labeled, citedpapers is not labeled
             g.factor([var, citedpapers], potential = np.array(
+                [[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
@@ -127,16 +137,13 @@ class DataHandler:
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
-
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]]))
+    break
     
   iters, converged = g.lbp(normalize=True)
   print("LBP ran for", iters, "iterations. Converged =", converged)
-  
-  """
-  
-  
+  #g.print_messages()
+  #g.print_rv_marginals()
   
   
   
