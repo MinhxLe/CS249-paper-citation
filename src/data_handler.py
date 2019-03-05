@@ -18,7 +18,6 @@ def Print3Entries(d):
 
 
 class DataHandler:
-  
   """
   Code below reads the file "papers", and stores (title, ID) pairs in titleToID
   """
@@ -167,7 +166,8 @@ class DataHandler:
 
 
   print("Handling Loopy BP...")
-  iters, converged = g.lbp(normalize=True)
+  iters, converged = g.lbp(normalize=True, progress=True)
+  print("BP Completed")
   print("LBP ran for", iters, "iterations. Converged =", converged)
   
   
