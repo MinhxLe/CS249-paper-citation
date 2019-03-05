@@ -1,6 +1,10 @@
 """
 data_handler contains set of parsers for the dataset
 """
+import numpy as np
+#import factorgraph as fg
+
+
 def Print3Entries(d):
   num = 0
   for x, y in d.items():
@@ -78,12 +82,59 @@ class DataHandler:
   print("There are", len(citations), "papers whose citations are provided")
   print("Among them", counter, "papers have labels")
 
+  """
+  Code below removes the papers in the dictionary "labels" whose citations are not provided
+  """
+  removeKeys = []
+  for x in labels:
+    if x not in citations:
+      removeKeys.append(x)
+  for x in removeKeys:
+    del labels[x]
+  print(len(labels))
   
+  """
+  g = fg.Graph()
+
+  for var in citations:
+    if var in labels.keys():
+      g.rv(var, 1)
+      g.factor([var], potential = np.array([1]))
+      for citedpapers in citations[var]:
+        if citedpapers in citations.keys(): #only add a factor if it is a valid paper
+          if citedpapers in labels:
+            #var is labeled, citedpapers is labeled
+            g.factor([var, citedpapers], potential = np.array([1]))
+          else:
+            #var is labeled, citedpapers is not labeled
+            g.factor([var, citedpapers], potential = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
+    else:
+      g.rv(var, 10)
+      g.factor([var], potential = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
+      for citedpapers in citations[var]:
+        if citedpapers in citations.keys(): #only add a factor if it is a valid paper
+          if citedpapers in labels:
+            #var is not labeled, citedpapers is labeled
+            g.factor([var, citedpapers], potential = np.array([1], [1], [1], [1], [1], [1], [1], [1], [1], [1]))
+          else:
+            #var is not labeled, citedpapers is not labeled
+            g.factor([var, citedpapers], potential = np.array(
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]))
+
+    
+  iters, converged = g.lbp(normalize=True)
+  print("LBP ran for", iters, "iterations. Converged =", converged)
   
-  
-  
-  
-  
+  """
   
   
   
