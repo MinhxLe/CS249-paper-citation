@@ -128,6 +128,8 @@ class Graph(object):
         # TODO: Consider making dict for speed.
         self._factors = []
 
+        self._factor_map = {}
+
     # TODO(mbforbes): Learn about *args or **args or whatever and see whether I
     #                 can use here to clean this up.
     def rv(self, name, n_opts, labels=[], meta={}, debug=DEBUG_DEFAULT):
@@ -235,6 +237,9 @@ class Graph(object):
 
         f = Factor(rvs, name, potential, meta, debug)
         self.add_factor(f)
+        #creating a factor map
+        self._factor_map[tuple([rv.name for rv in rvs])] = f
+
         return f
 
     def add_factor(self, factor):
@@ -462,8 +467,8 @@ class Graph(object):
             [(RV, np.ndarray)]
         '''
         if rvs is None:
-            rvs = self._rvs.values()
-
+            rvs = list(self._rvs.values())
+            
         tuples = []
         for rv in rvs:
             # Compute marginal

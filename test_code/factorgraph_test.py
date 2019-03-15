@@ -3,22 +3,25 @@ import numpy as np
 import torch
 
 
-n_topics = 3
+n_topics = 2
 n_papers = 10
 
 g = fg.Graph()
 
-# Add some discrete random variables (RVs)
-g.rv('a', 2)
-g.rv('b', 3)
+un_factor = np.array([.5, .5])
+ref_factor = np.array([[1, 0.001], [0.001, 0.001]])
 
-# Add some factors, unary and binary
-g.factor(['a'], potential=np.array([0.3, 0.7]))
-g.factor(['b', 'a'], potential=np.array([
-        [0.2, 0.8],
-        [0.4, 0.6],
-        [0.1, 0.9],
-]))
+for i in range(n_papers-2):
+        g.rv(str(i), 1)
+        g.factor([str(i)], potential=un_factor[None, 0])
+for i in range(0,n_papers-2,2):
+        g.factor([str(i), str(i+1)], potential=ref_factor[0,0,None, None])
+
+g.rv(str(n_papers-2), 2)
+g.rv(str(n_papers-1), 2)
+g.factor([str(n_papers-2)], potential=un_factor)
+g.factor([str(n_papers-1)], potential=un_factor)
+g.factor([str(n_papers-2), str(n_papers-1)], potential=ref_factor)
 
 iters, converged = g.lbp(normalize=True)
-
+g.print_rv_marginals()

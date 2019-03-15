@@ -6,11 +6,13 @@ import factorgraph as fg
 import time
 import pickle
 
-DATA = "../data/"
+DATA = "./data/"
 #the dictionary that maps the title to its ID
 titleToID = {}
 labels = {}
 citations = {}
+N_PAPERS = 27894 
+N_TOPICS = 10
 #Handles test
 g = fg.Graph()
 
@@ -184,7 +186,7 @@ def main():
   loadClasses()
   loadCitations()
   removeKeys()
-  graphTest()
+  #graphTest()
   
 if __name__== "__main__":
   main()
