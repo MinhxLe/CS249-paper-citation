@@ -35,24 +35,27 @@ class PaperMRF:
         self.unary_parameters = Variable(torch.rand(n_topics), requires_grad=True)
         self.reference_parameters = Variable(torch.rand(n_topics, n_topics), requires_grad=True)
         
-    def run_EM_algorthm(self, n_epochs):
+    def run_EM_algorthm(self, n_epochs, lr=0.1):
+        losses = []
         _LOGGER.debug("running EM for {} epochs".format(n_epochs))
-        optimizer = optim.SGD([self.unary_parameters, self.reference_parameters], lr=0.1)
+        optimizer = optim.SGD([self.unary_parameters, self.reference_parameters], lr=lr)
         for i in range(n_epochs):
             optimizer.zero_grad()
-            neg_q_func = self._create_negative_q_function()
-            _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func.data.numpy()))
+            neg_q_func = self._create_negative_q_function().data.numpy()
+            losses.append(neg_q_func)
+            _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func))
             _LOGGER.debug(self.unary_parameters)
             neg_q_func.backward()
             optimizer.step()
-            
+        return np.array(losses)
 
     def get_inferer(self):
         _LOGGER.debug("getting inferer object")
-        return mrf_inf.FactorGraphMRFInference(self.papers, self.n_topics,  
+        inferer = mrf_inf.FactorGraphMRFInference(self.papers, self.n_topics,  
             self.references, self.labels, self.unary_parameters.data.numpy(), 
             self.reference_parameters.data.numpy(), self.is_directional)
-        
+        self.inferer = inferer
+        return inferer
     def _create_negative_q_function(self):
         _LOGGER.debug("getting negative q function")
         #getting old values of parameters

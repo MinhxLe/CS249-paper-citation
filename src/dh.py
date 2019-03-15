@@ -6,7 +6,6 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
-_LOGGER.addHandler(logging.StreamHandler())
 
 _DATA_PATH = './data'
 _TOPIC_LABEL_DICT = {'Information_Retrieval': 0, 'Databases': 1,

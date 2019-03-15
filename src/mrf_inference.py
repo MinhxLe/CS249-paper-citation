@@ -12,7 +12,6 @@ from external import factorgraph as fg
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
-_LOGGER.addHandler(logging.StreamHandler())
 
 class MRFInference(abc.ABC):
     @abc.abstractmethod
@@ -23,7 +22,7 @@ class MRFInference(abc.ABC):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=False
+        is_directional: bool=True
     ):
         pass
     @abc.abstractmethod
@@ -42,7 +41,7 @@ class FactorGraphMRFInference(MRFInference):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=False
+        is_directional: bool=True
     ):
         graph = fg.Graph()
         #defining variables
