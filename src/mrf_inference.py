@@ -74,7 +74,6 @@ class FactorGraphMRFInference(MRFInference):
                         potential = reference_factors
                     graph.factor([str(i), str(j)], potential=potential)
         iters, converged = graph.lbp(normalize=True)
-        assert(converged)
         if not converged:
             _LOGGER.warning("LBP algorithm did not converge!")
         self.graph = graph
