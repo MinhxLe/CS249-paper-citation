@@ -11,6 +11,8 @@ DATA = "./data/"
 titleToID = {}
 labels = {}
 citations = {}
+N_PAPERS = 27894 
+N_TOPICS = 10
 #Handles test
 g = fg.Graph()
 

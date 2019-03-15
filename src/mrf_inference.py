@@ -12,11 +12,12 @@ from external import factorgraph as fg
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
+_LOGGER.addHandler(logging.StreamHandler())
 
 class MRFInference(abc.ABC):
     @abc.abstractmethod
     def __init__(self,
-        n_papers: int,
+        papers: Set[PaperId],
         n_topics: int,
         references: Mapping[int, Set[int]],
         labels: Mapping[PaperId, TopicId],
@@ -35,7 +36,7 @@ class MRFInference(abc.ABC):
 
 class FactorGraphMRFInference(MRFInference):
     def __init__(self,
-        n_papers: int,
+        papers: Set[PaperId],
         n_topics: int,
         references: Mapping[int, Set[int]],
         labels: Mapping[PaperId, TopicId],
@@ -45,24 +46,25 @@ class FactorGraphMRFInference(MRFInference):
     ):
         graph = fg.Graph()
         #defining variables
-        for i in range(n_papers):
+        for i in papers:
             if i in labels:
                 graph.rv(str(i), 1)
             else:
                 graph.rv(str(i), n_topics)
-
         #defining unary factors
         #TODO we can make this more complex by adding word nodes
-        for i in range(n_papers):
+        for i in papers:
             if i in labels:
                 graph.factor([str(i)], potential=unary_factors[None,labels[i]])
             else:
                 graph.factor([str(i)], potential=unary_factors)
         
         #defining binary factors
-        for i in range(n_papers):
+        for i in papers:
             if i in references:
                 for j in references[i]:
+                    # should only occur from self references...which doesn't make sense
+                    assert(i != j) 
                     if i in labels and j in labels:
                         potential = reference_factors[labels[i],labels[j], None, None]
                     elif i in labels:
@@ -73,6 +75,7 @@ class FactorGraphMRFInference(MRFInference):
                         potential = reference_factors
                     graph.factor([str(i), str(j)], potential=potential)
         iters, converged = graph.lbp(normalize=True)
+        assert(converged)
         if not converged:
             _LOGGER.warning("LBP algorithm did not converge!")
         self.graph = graph

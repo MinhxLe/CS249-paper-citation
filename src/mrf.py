@@ -12,11 +12,11 @@ from src.types import PaperId, TopicId
 from src import mrf_inference as mrf_inf
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.INFO)
+_LOGGER.setLevel(logging.DEBUG)
 
 class PaperMRF:
     def __init__(self,
-        n_papers: int,
+        papers: Set[PaperId],
         n_topics: int,
         references: Mapping[int, Set[int]],
         labels: Mapping[PaperId, TopicId],
@@ -25,7 +25,7 @@ class PaperMRF:
         """
         """
 
-        self.n_papers = n_papers
+        self.papers = papers
         self.n_topics = n_topics
         self.references = references
         self.labels = labels
@@ -42,17 +42,19 @@ class PaperMRF:
             optimizer.zero_grad()
             neg_q_func = self._create_negative_q_function()
             _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func.data.numpy()))
-            #_LOGGER.debug(self.unary_parameters)
+            _LOGGER.debug(self.unary_parameters)
             neg_q_func.backward()
             optimizer.step()
             
 
     def get_inferer(self):
-        return mrf_inf.FactorGraphMRFInference(self.n_papers, self.n_topics,  
+        _LOGGER.debug("getting inferer object")
+        return mrf_inf.FactorGraphMRFInference(self.papers, self.n_topics,  
             self.references, self.labels, self.unary_parameters.data.numpy(), 
             self.reference_parameters.data.numpy(), self.is_directional)
         
     def _create_negative_q_function(self):
+        _LOGGER.debug("getting negative q function")
         #getting old values of parameters
 
         log_unary_params = torch.log(self.unary_parameters)
@@ -62,7 +64,7 @@ class PaperMRF:
         inferer = self.get_inferer()
 
         #adding unary factors
-        for paper_id in range(self.n_papers):
+        for paper_id in self.papers:
             if paper_id in self.labels:
                 q_function += log_unary_params[self.labels[paper_id]]
             else:
@@ -72,9 +74,10 @@ class PaperMRF:
         #adding edge factors
         references = self.references
         labels = self.labels
-        for i in range(self.n_papers):
+        for i in self.papers:
             if i in references:
                 for j in references[i]:
+                    assert(j in self.papers)
                     if i in labels and j in labels:
                         q_function += log_reference_params[labels[i], labels[j]]    
                     elif i in labels:
