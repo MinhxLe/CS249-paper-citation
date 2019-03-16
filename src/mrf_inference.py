@@ -33,6 +33,23 @@ class MRFInference(abc.ABC):
     def get_joint_marginals(self, node_id1, node_id2):
         pass
 
+class FGLibMRFInference(MRFInference):
+    def __init__(self,
+        papers: Set[PaperId],
+        n_topics: int,
+        references: Mapping[int, Set[int]],
+        labels: Mapping[PaperId, TopicId],
+        unary_factors,
+        reference_factors,
+        is_directional: bool=True
+    ):
+        pass
+
+    def get_marginals(self, node_id):
+        pass
+
+    def get_joint_marginals(self, node_id1, node_id2):
+        pass
 class FactorGraphMRFInference(MRFInference):
     def __init__(self,
         papers: Set[PaperId],
@@ -73,7 +90,7 @@ class FactorGraphMRFInference(MRFInference):
                     else:
                         potential = reference_factors
                     graph.factor([str(i), str(j)], potential=potential)
-        iters, converged = graph.lbp(normalize=True)
+        iters, converged = graph.lbp(normalize=True, max_iters=100)
         if not converged:
             _LOGGER.warning("LBP algorithm did not converge!")
         self.graph = graph
@@ -81,7 +98,8 @@ class FactorGraphMRFInference(MRFInference):
 
 
     def get_marginals(self, node_id):
-        return self.graph.rv_marginals([self.graph._rvs[str(node_id)]])[0][1]
+        dist =  self.graph.rv_marginals([self.graph._rvs[str(node_id)]])[0][1]
+        return dist / np.sum(dist)
 
     def get_joint_marginals(self, node_id1, node_id2):
         #find the appropiate factor in the graph
