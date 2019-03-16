@@ -12,7 +12,7 @@ _LOGGER.addHandler(logging.StreamHandler())
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', type=float, help="percentage held out")
-parser.add_argument('--n_epochs', type=int, default=5)
+parser.add_argument('--n_epochs', type=int, default=2)
 parser.add_argument('--lr', type=float, default=0.1)
 parser.add_argument('--is_directional', type=bool, default=True)
 parser.add_argument('--n_loopy', type=int, default=100)
