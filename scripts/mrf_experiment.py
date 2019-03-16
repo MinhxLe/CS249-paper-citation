@@ -15,10 +15,38 @@ parser.add_argument('-p', type=float, help="percentage held out")
 parser.add_argument('--n_epochs', type=int, default=5)
 parser.add_argument('--lr', type=float, default=0.1)
 parser.add_argument('--is_directional', type=bool, default=True)
-
+parser.add_argument('--n_papers', type=int, default=1000)
 args = parser.parse_args()
 
-model_name = "PaperMRF_p={}_lr={}_is_directional={}".format(args.p, args.lr, args.is_directional)
+model_name = "PaperMRF_p={}_lr={}_is_directional={}_n_papers={}".format(args.p, args.lr, args.is_directional, args.n_papers)
+
+paper_set = dh.PAPER_SET.copy()
+references = dh.REFERENCES.copy()
+labels = dh.PAPER_TOPIC_LABELS.copy()
+
+paper_set = set(list(paper_set)[:args.n_papers])
+
+#keeping only paper_set and only p% of them
+del_list = []
+for key in labels:
+    if not key in paper_set:
+        del_list.append(key)
+    else:
+        if np.random.uniform() > args.p:
+            del_list.append(key)
+for key in del_list:
+    del labels[key]
+
+#removing all papers not in paper_set from references
+del_list = []
+for key in references:
+    if not key in paper_set:
+        del_list.append(key)
+    references[key].intersection_update(paper_set)
+
+for key in del_list:
+    del references[key]
+
 
 _LOGGER.debug(model_name)
 _LOGGER.debug("holding out {} labels".format(args.p))
