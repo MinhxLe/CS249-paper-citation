@@ -6,7 +6,6 @@ import numpy as np
 from typing import List, Mapping, Set
 import abc
 import logging
-from fglib import graphs, nodes, inference, rv
 
 from src.types import PaperId, TopicId
 from external import factorgraph as fg

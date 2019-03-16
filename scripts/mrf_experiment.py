@@ -18,7 +18,8 @@ parser.add_argument('--is_directional', type=bool, default=True)
 parser.add_argument('--n_loopy', type=int, default=100)
 args = parser.parse_args()
 
-model_name = "PaperMRF_p={}_lr={}_is_directional={}".format(args.p, args.lr, args.is_directional)
+model_name = "PaperMRF_p={}_lr={}_is_directional={}_n_loopy={}".format(args.p, args.lr, 
+    args.is_directional, args.n_loopy)
 
 paper_set = dh.PAPER_SET.copy()
 references = dh.REFERENCES.copy()
@@ -57,7 +58,7 @@ for key in labels:
 for key in del_list:
     del labels[key]
 
-model = mrf.PaperMRF(
+ = mrf.PaperMRF(
     papers=dh.PAPER_SET,
     n_topics=dh.N_TOPICS,
     references=dh.REFERENCES,
