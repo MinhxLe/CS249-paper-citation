@@ -58,7 +58,7 @@ for key in labels:
 for key in del_list:
     del labels[key]
 
- = mrf.PaperMRF(
+model = mrf.PaperMRF(
     papers=dh.PAPER_SET,
     n_topics=dh.N_TOPICS,
     references=dh.REFERENCES,
