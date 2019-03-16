@@ -1,4 +1,4 @@
-F"""
+"""
 inference module defines an inference interface for MRF class to use that essentially
 provides wrappers for blackbox libraries such as factorgraph.py
 """
@@ -106,7 +106,7 @@ class FactorGraphMRFInference(MRFInference):
                     else:
                         potential = reference_factors
                     graph.factor([str(i), str(j)], potential=potential)
-        iters, converged = graph.lbp(normalize=True, max_iters=100)
+        iters, converged = graph.lbp(normalize=True, max_iters=300)
         if not converged:
             _LOGGER.warning("LBP algorithm did not converge!")
         self.graph = graph
