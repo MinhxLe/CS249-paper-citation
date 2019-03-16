@@ -15,25 +15,23 @@ parser.add_argument('-p', type=float, help="percentage held out")
 parser.add_argument('--n_epochs', type=int, default=5)
 parser.add_argument('--lr', type=float, default=0.1)
 parser.add_argument('--is_directional', type=bool, default=True)
-parser.add_argument('--n_papers', type=int, default=-1)
 args = parser.parse_args()
 
-model_name = "PaperMRF_p={}_lr={}_is_directional={}_n_papers={}".format(args.p, args.lr, args.is_directional, args.n_papers)
+model_name = "PaperMRF_p={}_lr={}_is_directional={}".format(args.p, args.lr, args.is_directional)
 
 paper_set = dh.PAPER_SET.copy()
 references = dh.REFERENCES.copy()
 labels = dh.PAPER_TOPIC_LABELS.copy()
 
-paper_set = set(list(paper_set)[:args.n_papers])
-
+test_paper_set = set()
 #keeping only paper_set and only p% of them
 del_list = []
 for key in labels:
     if not key in paper_set:
         del_list.append(key)
-    else:
-        if np.random.uniform() > args.p:
+    elif np.random.uniform() > args.p:
             del_list.append(key)
+            test_paper_set.add(key)
 for key in del_list:
     del labels[key]
 
@@ -74,3 +72,13 @@ with open(os.path.join('models', model_name + ".pkl"), 'wb') as f:
 _LOGGER.debug("saving losses")
 fname = "losses/{}_losses.npy".format(model_name)
 np.save(fname, losses)
+
+test_paper_set = dh.PAPER_SET.difference(paper_set)
+
+count = 0
+for paper in test_paper_set:
+    if np.argmax(model.inferer.get_marginals(paper)) == dh.PAPER_TOPIC_LABELS[paper]:
+        count += 1
+accuracy = count/len(test_paper_set)
+
+_LOGGER.debug("Final Accuracy: {}".format(accuracy))

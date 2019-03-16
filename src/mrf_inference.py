@@ -6,6 +6,7 @@ import numpy as np
 from typing import List, Mapping, Set
 import abc
 import logging
+from fglib import graphs, nodes, inference, rv
 
 from src.types import PaperId, TopicId
 from external import factorgraph as fg
@@ -32,7 +33,7 @@ class MRFInference(abc.ABC):
     @abc.abstractmethod
     def get_joint_marginals(self, node_id1, node_id2):
         pass
-
+"""
 class FGLibMRFInference(MRFInference):
     def __init__(self,
         papers: Set[PaperId],
@@ -43,13 +44,28 @@ class FGLibMRFInference(MRFInference):
         reference_factors,
         is_directional: bool=True
     ):
-        pass
-
+    rvs = {}
+    factors = {}
+    
+    for paper in papers:
+        rvs[paper] = nodes.VNode(str(paper), rv.Discrete)
+    
+    #defining unary factors
+    #TODO we can make this more complex by adding word nodes
+    for paper in papers:
+        if paper in labels:
+            factor = nodes.FNode('f({})'.format(paper), rv.Discrete(, rvs[paper]))
+            graph.factor([str(i)], potential=unary_factors[None,labels[i]])
+        else:
+            factor = fc
+            graph.factor([str(i)], potential=unary_factors)
+        
     def get_marginals(self, node_id):
         pass
 
     def get_joint_marginals(self, node_id1, node_id2):
         pass
+"""
 class FactorGraphMRFInference(MRFInference):
     def __init__(self,
         papers: Set[PaperId],
