@@ -23,7 +23,8 @@ class MRFInference(abc.ABC):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=True
+        is_directional: bool=True,
+        n_loopy:int=100
     ):
         pass
     @abc.abstractmethod
@@ -74,7 +75,8 @@ class FactorGraphMRFInference(MRFInference):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=True
+        is_directional: bool=True,
+        n_loopy: int=100
     ):
         graph = fg.Graph()
         #defining variables
@@ -106,7 +108,7 @@ class FactorGraphMRFInference(MRFInference):
                     else:
                         potential = reference_factors
                     graph.factor([str(i), str(j)], potential=potential)
-        iters, converged = graph.lbp(normalize=True, max_iters=300)
+        iters, converged = graph.lbp(normalize=True, max_iters=n_loopy)
         if not converged:
             _LOGGER.warning("LBP algorithm did not converge!")
         self.graph = graph

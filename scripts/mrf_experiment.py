@@ -15,6 +15,7 @@ parser.add_argument('-p', type=float, help="percentage held out")
 parser.add_argument('--n_epochs', type=int, default=5)
 parser.add_argument('--lr', type=float, default=0.1)
 parser.add_argument('--is_directional', type=bool, default=True)
+parser.add_argument('--n_loopy', type=int, default=100)
 args = parser.parse_args()
 
 model_name = "PaperMRF_p={}_lr={}_is_directional={}".format(args.p, args.lr, args.is_directional)
@@ -60,7 +61,8 @@ model = mrf.PaperMRF(
     papers=dh.PAPER_SET,
     n_topics=dh.N_TOPICS,
     references=dh.REFERENCES,
-    labels=labels,    
+    labels=labels,
+    n_loopy=args.n_loopy
 )
 _LOGGER.debug("training model for {} epochs".format(args.n_epochs))
 losses = model.run_EM_algorthm(args.n_epochs, lr=args.lr)
@@ -72,8 +74,6 @@ with open(os.path.join('models', model_name + ".pkl"), 'wb') as f:
 _LOGGER.debug("saving losses")
 fname = "losses/{}_losses.npy".format(model_name)
 np.save(fname, losses)
-
-test_paper_set = dh.PAPER_SET.difference(paper_set)
 
 count = 0
 for paper in test_paper_set:

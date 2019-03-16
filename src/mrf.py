@@ -20,7 +20,8 @@ class PaperMRF:
         n_topics: int,
         references: Mapping[int, Set[int]],
         labels: Mapping[PaperId, TopicId],
-        is_directional: bool=True
+        n_loopy: int,
+        is_directional: bool=True,
     ):
         """
         """
@@ -30,6 +31,7 @@ class PaperMRF:
         self.references = references
         self.labels = labels
         self.is_directional = is_directional
+        self.n_loopy = n_loopy
 
         #model parameters
         self.unary_parameters = Variable(torch.rand(n_topics), requires_grad=True)
@@ -52,7 +54,7 @@ class PaperMRF:
         _LOGGER.debug("getting inferer object")
         inferer = mrf_inf.FactorGraphMRFInference(self.papers, self.n_topics,  
             self.references, self.labels, self.unary_parameters.data.numpy(), 
-            self.reference_parameters.data.numpy(), self.is_directional)
+            self.reference_parameters.data.numpy(), self.is_directional, self.n_loopy)
         self.inferer = inferer
         return inferer
     def _create_negative_q_function(self):
