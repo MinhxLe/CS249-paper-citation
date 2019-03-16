@@ -41,9 +41,9 @@ class PaperMRF:
         optimizer = optim.SGD([self.unary_parameters, self.reference_parameters], lr=lr)
         for i in range(n_epochs):
             optimizer.zero_grad()
-            neg_q_func = self._create_negative_q_function().data.numpy()
-            losses.append(neg_q_func)
-            _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func))
+            neg_q_func = self._create_negative_q_function()
+            losses.append(neg_q_func.data.numpy())
+            _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func.data.numpy()))
             _LOGGER.debug(self.unary_parameters)
             neg_q_func.backward()
             optimizer.step()
