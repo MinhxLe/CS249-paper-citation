@@ -44,7 +44,6 @@ class PaperMRF:
             neg_q_func = self._create_negative_q_function()
             losses.append(neg_q_func.data.numpy())
             _LOGGER.debug("epoch: {},q_value: {}".format(i, neg_q_func.data.numpy()))
-            _LOGGER.debug(self.unary_parameters)
             neg_q_func.backward()
             optimizer.step()
         return np.array(losses)
