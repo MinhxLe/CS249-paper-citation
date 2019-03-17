@@ -22,7 +22,6 @@ class MRFInference(abc.ABC):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=True,
         n_loopy:int=100
     ):
         pass
@@ -74,7 +73,6 @@ class FactorGraphMRFInference(MRFInference):
         labels: Mapping[PaperId, TopicId],
         unary_factors,
         reference_factors,
-        is_directional: bool=True,
         n_loopy: int=100
     ):
         graph = fg.Graph()
@@ -97,7 +95,7 @@ class FactorGraphMRFInference(MRFInference):
             if i in references:
                 for j in references[i]:
                     # should only occur from self references...which doesn't make sense
-                    assert(i != j) 
+                    assert(i != j)
                     if i in labels and j in labels:
                         potential = reference_factors[labels[i],labels[j], None, None]
                     elif i in labels:

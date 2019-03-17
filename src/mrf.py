@@ -36,7 +36,13 @@ class PaperMRF:
         #model parameters
         self.unary_parameters = Variable(torch.rand(n_topics), requires_grad=True)
         self.reference_parameters = Variable(torch.rand(n_topics, n_topics), requires_grad=True)
-        
+
+        if not is_directional:
+            nondirectional_reference_parameters = self.reference_parameters.copy()
+            for i in range(n_topics):
+                for j in range(i):
+                    nondirectional_reference_parameters[i][j] = self.reference_parameters[j][i]
+            self.nondirectional_reference_parameters = self.nondirectional_reference_parameters 
     def run_EM_algorthm(self, n_epochs, lr=0.1):
         losses = []
         _LOGGER.debug("running EM for {} epochs".format(n_epochs))
@@ -52,17 +58,30 @@ class PaperMRF:
 
     def get_inferer(self):
         _LOGGER.debug("getting inferer object")
+        unary_params = self.unary_parameters.data.numpy()
+        if self.is_directional:
+            reference_params = self.reference_parameters.data.numpy()
+        else:
+            reference_params = self.nondirectional_reference_parameters.data.numpy()
+
         inferer = mrf_inf.FactorGraphMRFInference(self.papers, self.n_topics,  
-            self.references, self.labels, self.unary_parameters.data.numpy(), 
-            self.reference_parameters.data.numpy(), self.is_directional, self.n_loopy)
+            self.references, self.labels, unary_params, 
+            reference_params, self.n_loopy)
         self.inferer = inferer
         return inferer
     def _create_negative_q_function(self):
         _LOGGER.debug("getting negative q function")
         #getting old values of parameters
+        unary_params = self.unary_parameters
+        if self.is_directional:
+            reference_params = self.reference_parameters
+        else:
+            reference_params = self.nondirectional_reference_parameters
+                
 
-        log_unary_params = torch.log(self.unary_parameters)
-        log_reference_params = torch.log(self.reference_parameters)
+
+        log_unary_params = torch.log(unary_param)
+        log_reference_params = torch.log(reference_params)
 
         q_function = 0
         inferer = self.get_inferer()
