@@ -80,7 +80,7 @@ class PaperMRF:
                 
 
 
-        log_unary_params = torch.log(unary_param)
+        log_unary_params = torch.log(unary_params)
         log_reference_params = torch.log(reference_params)
 
         q_function = 0
