@@ -68,9 +68,6 @@ model = mrf.PaperMRF(
 _LOGGER.debug("training model for {} epochs".format(args.n_epochs))
 losses = model.run_EM_algorthm(args.n_epochs, lr=args.lr)
 
-# _LOGGER.debug('saving model {}'.format(model_name))
-# with open(os.path.join('models', model_name + ".pkl"), 'wb') as f:
-#     pickle.dump(model, f)
 
 _LOGGER.debug("saving losses")
 fname = "losses/{}_losses.npy".format(model_name)
@@ -84,3 +81,8 @@ for paper in test_paper_set:
 accuracy = count/len(test_paper_set)
 
 _LOGGER.info("Final Accuracy: {}".format(accuracy))
+
+
+_LOGGER.debug('saving model {}'.format(model_name))
+with open(os.path.join('models', model_name + ".pkl"), 'wb') as f:
+     pickle.dump(model, f)
